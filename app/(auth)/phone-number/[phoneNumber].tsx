@@ -54,8 +54,7 @@ const PhoneNumber = () => {
       setMessage(error);
       toggleSnack();
     } else if (success) {
-      await storeData(config.SESSION_KEY, data);
-      router.replace("home");
+      await storeData(config.SESSION_KEY, data?.data);
     }
 
     setLoading(false);

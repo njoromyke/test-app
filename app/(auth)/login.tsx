@@ -1,12 +1,11 @@
-import { ScrollView, StyleSheet, View } from "react-native";
-import React, { useState } from "react";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { Appbar, Button, Snackbar, Text, TextInput, useTheme } from "react-native-paper";
-import { useRouter } from "expo-router";
-import { useGlobalContext } from "@/hooks/useGlobalContext";
 import { postData } from "@/axios";
-import { storeData } from "@/utils/storage";
 import { config } from "@/config";
+import { storeData } from "@/utils/storage";
+import { useRouter } from "expo-router";
+import { useState } from "react";
+import { ScrollView, StyleSheet, View } from "react-native";
+import { Appbar, Button, Snackbar, Text, TextInput, useTheme } from "react-native-paper";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 type Login = {
   phoneNumber: string;
@@ -52,8 +51,7 @@ const Login = () => {
     }
 
     if (success) {
-      await storeData(config.SESSION_KEY, data);
-      router.replace("home");
+      await storeData(config.SESSION_KEY, data?.data);
     }
   };
 

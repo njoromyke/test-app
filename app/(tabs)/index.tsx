@@ -10,7 +10,7 @@ const Index = () => {
         flex: 1,
       }}
     >
-      <Text>Hello</Text>
+      <Text>Welcome Home</Text>
       
     </SafeAreaView>
   );

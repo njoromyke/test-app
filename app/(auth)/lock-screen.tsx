@@ -58,6 +58,8 @@ const lockScreen = () => {
     }
   };
 
+  console.log(userData);
+
   const toggleSnack = () => {
     setShowSnack(!showSnack);
   };
