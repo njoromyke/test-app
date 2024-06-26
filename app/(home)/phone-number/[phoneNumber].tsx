@@ -6,6 +6,7 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import { postData } from "@/axios";
 import { storeData } from "@/utils/storage";
 import { config } from "@/config";
+import Loader from "@/components/loader/loader";
 
 type Password = {
   password: string;
@@ -21,6 +22,7 @@ const PhoneNumber = () => {
   const [showSnack, setShowSnack] = useState(false);
   const [message, setMessage] = useState("");
   const { phoneNumber } = useLocalSearchParams();
+  const [loading, setLoading] = useState(false);
 
   const toggleSnack = () => {
     setShowSnack(!showSnack);
@@ -41,21 +43,22 @@ const PhoneNumber = () => {
       return;
     }
 
-    const { success, error, data } = await postData("/auth/signup", {
+    setLoading(true);
+    const { success, error, data } = await postData("/auth/signUp", {
       phoneNumber,
       password: userData.password,
     });
 
     if (error) {
+      console.log(error);
       setMessage(error);
       toggleSnack();
-      return;
-    }
-
-    if (success) {
+    } else if (success) {
       await storeData(config.SESSION_KEY, data);
       router.replace("home");
     }
+
+    setLoading(false);
   };
 
   return (
@@ -70,6 +73,7 @@ const PhoneNumber = () => {
       </Appbar.Header>
       <ScrollView contentContainerStyle={styles.scrollViewContent}>
         <View style={{ flex: 1 }}>
+          {loading && <Loader />}
           <Text variant="headlineLarge">User registration</Text>
           <Text
             variant="titleMedium"
@@ -83,12 +87,13 @@ const PhoneNumber = () => {
           <View style={{ marginTop: 24, flex: 1, gap: 35 }}>
             <TextInput
               mode="outlined"
-              value={userData?.password || ""}
-              onChangeText={(text) =>
-                setUserData({
-                  password: text,
-                })
-              }
+              value={userData.password || ""}
+              label="Password"
+              onChangeText={(value) => {
+                setUserData({ password: value });
+              }}
+              secureTextEntry={!isPasswordVisible}
+              right={<TextInput.Icon icon={isPasswordVisible ? "eye-off" : "eye"} onPress={togglePassword} />}
             />
             <Button mode="contained" onPress={handleRegister}>
               Submit
@@ -97,6 +102,7 @@ const PhoneNumber = () => {
               onPress={() => {
                 router.push("login");
               }}
+              disabled={loading}
             >
               Have an Account ? Please login
             </Button>
