@@ -1,26 +1,27 @@
 import { ScrollView, StyleSheet, View } from "react-native";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Appbar, Button, Snackbar, Text, TextInput, useTheme } from "react-native-paper";
-import { useRouter } from "expo-router";
-import { useGlobalContext } from "@/hooks/useGlobalContext";
-import { postData } from "@/axios";
-import { storeData } from "@/utils/storage";
+import { Button, Snackbar, Text, TextInput, useTheme } from "react-native-paper";
+import { getData, storeData } from "@/utils/storage";
 import { config } from "@/config";
+import { useRouter } from "expo-router";
+import { postData } from "@/axios";
 
-type Login = {
+type UserData = {
   phoneNumber: string;
+  token: string;
   password: string;
 };
 
-const Login = () => {
+const lockScreen = () => {
   const theme = useTheme();
-  const router = useRouter();
-  const [userData, setUserData] = useState<Login>({
-    password: "",
+  const [userData, setUserData] = useState<UserData>({
     phoneNumber: "",
+    token: "",
+    password: "",
   });
   const [isPasswordVisible, setPasswordVisible] = useState(false);
+  const router = useRouter();
   const [message, setMessage] = useState("");
   const [showSnack, setShowSnack] = useState(false);
 
@@ -28,22 +29,22 @@ const Login = () => {
     setPasswordVisible(!isPasswordVisible);
   };
 
-  const toggleSnack = () => {
-    setShowSnack(!showSnack);
-  };
+  const getUserData = async () => {
+    const data = await getData(config.SESSION_KEY);
 
-  const onNavigateBack = () => {
-    router.back();
+    if (data) {
+      setUserData(data);
+    }
   };
 
   const onLogin = async () => {
     if (!userData.password || !userData.phoneNumber) {
-      setMessage("Please all the fields");
-      toggleSnack();
       return;
     }
 
-    const { success, error, data } = await postData("/auth/login", userData);
+    const url = "/auth/login";
+
+    const { success, data, error } = await postData(url, userData);
 
     if (error) {
       setMessage(error);
@@ -57,19 +58,24 @@ const Login = () => {
     }
   };
 
+  const toggleSnack = () => {
+    setShowSnack(!showSnack);
+  };
+
+  useEffect(() => {
+    getUserData();
+  }, []);
+
   return (
     <SafeAreaView
       style={{
-        backgroundColor: theme.colors.background,
         flex: 1,
+        backgroundColor: theme.colors.background,
       }}
     >
-      <Appbar.Header>
-        <Appbar.BackAction onPress={onNavigateBack} />
-      </Appbar.Header>
       <ScrollView contentContainerStyle={styles.scrollViewContent}>
         <View style={{ flex: 1 }}>
-          <Text variant="headlineLarge">Login</Text>
+          <Text variant="headlineLarge">Screen locked</Text>
           <Text
             variant="titleMedium"
             style={{
@@ -80,14 +86,7 @@ const Login = () => {
           </Text>
 
           <View style={{ marginTop: 24, flex: 1, gap: 30 }}>
-            <TextInput
-              mode="outlined"
-              value={userData.phoneNumber || ""}
-              label="Phone Number"
-              onChangeText={(value) => {
-                setUserData({ ...userData, phoneNumber: value });
-              }}
-            />
+            <Text variant="titleMedium">Your is Number: {userData.phoneNumber}</Text>
             <TextInput
               mode="outlined"
               value={userData.password || ""}
@@ -128,7 +127,7 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default lockScreen;
 
 const styles = StyleSheet.create({
   scrollViewContent: {

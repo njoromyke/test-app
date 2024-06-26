@@ -12,6 +12,7 @@ export default function HomeLayout() {
     >
       <Stack.Screen name="login" options={{ headerShown: false }} />
       <Stack.Screen name="register" options={{ headerShown: false }} />
+      <Stack.Screen name="phone-number/[phoneNumber]" options={{ headerShown: false }} />
     </Stack>
   );
 }

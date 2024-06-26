@@ -1,8 +1,14 @@
 import { useMemo, useState } from "react";
 import { GlobalContext } from "./global-context";
+import { postData } from "@/axios";
 
 type Props = {
   children: React.ReactNode;
+};
+
+type UserLogin = {
+  phoneNumber: string;
+  password: string;
 };
 
 export function GlobalContextProvider({ children }: Props) {
@@ -11,12 +17,6 @@ export function GlobalContextProvider({ children }: Props) {
   const logOut = () => {
     console.log("logout");
   };
-
-  const login = () => {
-    console.log("login");
-  };
-
-  const register = () => {};
 
   const toggleTheme = () => {
     setTheme(theme === "light" ? "light" : "dark");
@@ -34,9 +34,7 @@ export function GlobalContextProvider({ children }: Props) {
       user,
       theme,
       logout: logOut,
-      login,
       toggleTheme,
-      register,
       onThemeChange: toggleTheme,
     };
   }, [user?.id]);

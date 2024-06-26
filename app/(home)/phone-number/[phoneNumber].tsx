@@ -2,23 +2,25 @@ import { ScrollView, StyleSheet, View } from "react-native";
 import React, { useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Appbar, Button, Snackbar, Text, TextInput, useTheme } from "react-native-paper";
-import { Link, useRouter } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import { postData } from "@/axios";
+import { storeData } from "@/utils/storage";
+import { config } from "@/config";
 
-type Register = {
-  phoneNumber: string;
+type Password = {
   password: string;
 };
 
-const Register = () => {
+const PhoneNumber = () => {
   const theme = useTheme();
   const router = useRouter();
-  const [userData, setUserData] = useState<Register>({
+  const [userData, setUserData] = useState<Password>({
     password: "",
-    phoneNumber: "",
   });
   const [isPasswordVisible, setPasswordVisible] = useState(false);
   const [showSnack, setShowSnack] = useState(false);
   const [message, setMessage] = useState("");
+  const { phoneNumber } = useLocalSearchParams();
 
   const toggleSnack = () => {
     setShowSnack(!showSnack);
@@ -30,6 +32,30 @@ const Register = () => {
 
   const onNavigateBack = () => {
     router.back();
+  };
+
+  const handleRegister = async () => {
+    if (!userData.password) {
+      setMessage("Please enter a password to continue.");
+      toggleSnack();
+      return;
+    }
+
+    const { success, error, data } = await postData("/auth/signup", {
+      phoneNumber,
+      password: userData.password,
+    });
+
+    if (error) {
+      setMessage(error);
+      toggleSnack();
+      return;
+    }
+
+    if (success) {
+      await storeData(config.SESSION_KEY, data);
+      router.replace("home");
+    }
   };
 
   return (
@@ -44,40 +70,35 @@ const Register = () => {
       </Appbar.Header>
       <ScrollView contentContainerStyle={styles.scrollViewContent}>
         <View style={{ flex: 1 }}>
-          <Text variant="headlineLarge">Register</Text>
+          <Text variant="headlineLarge">User registration</Text>
           <Text
             variant="titleMedium"
             style={{
-              marginTop: 12,
+              marginTop: 14,
+              marginBottom: 14,
             }}
           >
-            Enter phone number.
+            Enter password for: {phoneNumber}
           </Text>
-          <View style={{ marginTop: 24, flex: 1, gap: 30 }}>
+          <View style={{ marginTop: 24, flex: 1, gap: 35 }}>
             <TextInput
               mode="outlined"
-              value={userData.phoneNumber || ""}
-              label="Phone Number"
-              onChangeText={(value) => {
-                setUserData({ ...userData, phoneNumber: value });
-              }}
+              value={userData?.password || ""}
+              onChangeText={(text) =>
+                setUserData({
+                  password: text,
+                })
+              }
             />
-            <Link
-              asChild
-              href={{
-                pathname: "phone-number/[phoneNumber]",
-                params: { phoneNumber: userData.phoneNumber },
-              }}
-              disabled={!userData.phoneNumber}
-            >
-              <Button mode="contained">Continue</Button>
-            </Link>
+            <Button mode="contained" onPress={handleRegister}>
+              Submit
+            </Button>
             <Button
               onPress={() => {
                 router.push("login");
               }}
             >
-              Have an Account ? Pleas login
+              Have an Account ? Please login
             </Button>
           </View>
         </View>
@@ -98,7 +119,7 @@ const Register = () => {
   );
 };
 
-export default Register;
+export default PhoneNumber;
 
 const styles = StyleSheet.create({
   scrollViewContent: {
