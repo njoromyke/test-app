@@ -1,18 +1,35 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { GlobalContext } from "./global-context";
 import { postData } from "@/axios";
+import { getData } from "@/utils/storage";
+import { config } from "@/config";
 
 type Props = {
   children: React.ReactNode;
 };
 
-type UserLogin = {
+type User = {
   phoneNumber: string;
-  password: string;
+  id: string;
+};
+type UserData = {
+  access_token: string;
+  expiresIn: string;
+  user: User;
 };
 
 export function GlobalContextProvider({ children }: Props) {
   const [theme, setTheme] = useState<string>("light");
+  const [user, setUser] = useState<UserData | null>(null);
+
+  const fetchUserData = async () => {
+    console.log("fetchUserData");
+    const userData = await getData(config.SESSION_KEY);
+    console.log(userData, "userData");
+    if (userData) {
+      setUser(userData);
+    }
+  };
 
   const logOut = () => {
     console.log("logout");
@@ -22,12 +39,11 @@ export function GlobalContextProvider({ children }: Props) {
     setTheme(theme === "light" ? "light" : "dark");
   };
 
-  const user = {
-    name: "John Doe",
-    age: 30,
-    id: "1",
-    phoneNumber: "1234567890",
-  };
+  useEffect(() => {
+    fetchUserData();
+  }, []);
+
+  console.log(user);
 
   const values = useMemo(() => {
     return {
@@ -37,7 +53,7 @@ export function GlobalContextProvider({ children }: Props) {
       toggleTheme,
       onThemeChange: toggleTheme,
     };
-  }, [user?.id]);
+  }, [user?.user?.id]);
 
   return <GlobalContext.Provider value={values}>{children}</GlobalContext.Provider>;
 }

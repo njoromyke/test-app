@@ -1,4 +1,5 @@
 import { postData } from "@/axios";
+import Loader from "@/components/loader/loader";
 import { config } from "@/config";
 import { storeData } from "@/utils/storage";
 import { useRouter } from "expo-router";
@@ -22,6 +23,7 @@ const Login = () => {
   const [isPasswordVisible, setPasswordVisible] = useState(false);
   const [message, setMessage] = useState("");
   const [showSnack, setShowSnack] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const togglePassword = () => {
     setPasswordVisible(!isPasswordVisible);
@@ -42,17 +44,21 @@ const Login = () => {
       return;
     }
 
+    setLoading(true);
+
     const { success, error, data } = await postData("/auth/login", userData);
 
     if (error) {
       setMessage(error);
       toggleSnack();
-      return;
+    } else if (success) {
+      await storeData(config.SESSION_KEY, data?.data);
+      await storeData(config.START_TIME, new Date().getTime());
+      setMessage("Login successful");
+      router.push("(tabs)");
     }
 
-    if (success) {
-      await storeData(config.SESSION_KEY, data?.data);
-    }
+    setLoading(false);
   };
 
   return (
@@ -62,12 +68,11 @@ const Login = () => {
         flex: 1,
       }}
     >
-      <Appbar.Header>
-        <Appbar.BackAction onPress={onNavigateBack} />
-      </Appbar.Header>
+      <Appbar.Header>{router.canGoBack() && <Appbar.BackAction onPress={onNavigateBack} />}</Appbar.Header>
       <ScrollView contentContainerStyle={styles.scrollViewContent}>
         <View style={{ flex: 1 }}>
           <Text variant="headlineLarge">Login</Text>
+          {loading && <Loader />}
           <Text
             variant="titleMedium"
             style={{
@@ -97,7 +102,7 @@ const Login = () => {
               right={<TextInput.Icon icon={isPasswordVisible ? "eye-off" : "eye"} onPress={togglePassword} />}
             />
 
-            <Button mode="contained" onPress={onLogin}>
+            <Button mode="contained" onPress={onLogin} disabled={loading}>
               Login
             </Button>
             <Button

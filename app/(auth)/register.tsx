@@ -1,8 +1,8 @@
-import { ScrollView, StyleSheet, View } from "react-native";
-import React, { useState } from "react";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { Appbar, Button, Snackbar, Text, TextInput, useTheme } from "react-native-paper";
 import { Link, useRouter } from "expo-router";
+import React, { useState } from "react";
+import { ScrollView, StyleSheet, View } from "react-native";
+import { Appbar, Button, Snackbar, Text, TextInput, useTheme } from "react-native-paper";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 type Register = {
   phoneNumber: string;
@@ -16,16 +16,11 @@ const Register = () => {
     password: "",
     phoneNumber: "",
   });
-  const [isPasswordVisible, setPasswordVisible] = useState(false);
   const [showSnack, setShowSnack] = useState(false);
   const [message, setMessage] = useState("");
 
   const toggleSnack = () => {
     setShowSnack(!showSnack);
-  };
-
-  const togglePassword = () => {
-    setPasswordVisible(!isPasswordVisible);
   };
 
   const onNavigateBack = () => {

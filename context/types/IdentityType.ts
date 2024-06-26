@@ -1,11 +1,16 @@
 export type ContextType = {
   theme: string;
-  user: User;
+  user: UserData | null;
   onThemeChange: () => void;
   logout: () => void;
 };
 
-export type User = {
-  id: string;
+type User = {
   phoneNumber: string;
+  id: string;
+};
+export type UserData = {
+  access_token: string;
+  expiresIn: string;
+  user: User;
 };

@@ -55,6 +55,9 @@ const PhoneNumber = () => {
       toggleSnack();
     } else if (success) {
       await storeData(config.SESSION_KEY, data?.data);
+      await storeData(config.START_TIME, new Date().getTime());
+      setMessage("Registration successful");
+      router.push("(tabs)");
     }
 
     setLoading(false);
