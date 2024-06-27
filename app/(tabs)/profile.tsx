@@ -1,30 +1,20 @@
-import { Alert, StyleSheet, View } from "react-native";
-import React, { useEffect, useState } from "react";
-import { UserData } from "@/context/types/IdentityType";
 import { config } from "@/config";
-import { getData, removeData } from "@/utils/storage";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { Avatar, Card, useTheme, Text, List } from "react-native-paper";
+import { GlobalContext } from "@/context";
+import { removeData } from "@/utils/storage";
 import { useRouter } from "expo-router";
+import React, { useContext } from "react";
+import { Alert } from "react-native";
+import { Avatar, Card, List, Text, useTheme } from "react-native-paper";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 const Profile = () => {
-  const [user, setUser] = useState<UserData | null>(null);
   const theme = useTheme();
   const router = useRouter();
-
-  const fetchUserData = async () => {
-    console.log("fetchUserData");
-    const userData = await getData(config.SESSION_KEY);
-
-    if (userData) {
-      setUser(userData);
-    }
-  };
+  const { user } = useContext(GlobalContext);
 
   const onLogout = async () => {
     await removeData(config.SESSION_KEY);
     await removeData(config.START_TIME);
-    setUser(null);
     router.replace("(auth)");
   };
 
@@ -40,10 +30,6 @@ const Profile = () => {
       },
     ]);
   };
-
-  useEffect(() => {
-    fetchUserData();
-  }, []);
 
   return (
     <SafeAreaView

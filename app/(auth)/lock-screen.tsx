@@ -6,24 +6,17 @@ import { getData, storeData } from "@/utils/storage";
 import { config } from "@/config";
 import { useRouter } from "expo-router";
 import { postData } from "@/axios";
-
-type UserData = {
-  phoneNumber: string;
-  token: string;
-  password: string;
-};
-
+import { UserData } from "@/context/types/IdentityType";
+import Loader from "@/components/loader/loader";
 const lockScreen = () => {
   const theme = useTheme();
-  const [userData, setUserData] = useState<UserData>({
-    phoneNumber: "",
-    token: "",
-    password: "",
-  });
+  const [userData, setUserData] = useState<UserData | null>(null);
   const [isPasswordVisible, setPasswordVisible] = useState(false);
   const router = useRouter();
   const [message, setMessage] = useState("");
   const [showSnack, setShowSnack] = useState(false);
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const togglePassword = () => {
     setPasswordVisible(!isPasswordVisible);
@@ -37,28 +30,33 @@ const lockScreen = () => {
     }
   };
 
+  console.log(userData);
+
   const onLogin = async () => {
-    if (!userData.password || !userData.phoneNumber) {
+    if (!password || !userData?.user?.phoneNumber) {
       return;
     }
 
+    setLoading(true);
     const url = "/auth/login";
 
-    const { success, data, error } = await postData(url, userData);
+    const { success, data, error } = await postData(url, {
+      phoneNumber: userData?.user?.phoneNumber,
+      password,
+    });
 
     if (error) {
       setMessage(error);
       toggleSnack();
-      return;
-    }
-
-    if (success) {
+    } else if (success) {
+      setMessage("Login successful");
       await storeData(config.SESSION_KEY, data);
-      router.replace("home");
+      await storeData(config.START_TIME, new Date().getTime());
+      router.replace("(tabs)");
     }
-  };
 
-  console.log(userData);
+    setLoading(false);
+  };
 
   const toggleSnack = () => {
     setShowSnack(!showSnack);
@@ -86,15 +84,15 @@ const lockScreen = () => {
           >
             Welcome back.
           </Text>
-
+          {loading && <Loader />}
           <View style={{ marginTop: 24, flex: 1, gap: 30 }}>
-            <Text variant="titleMedium">Your is Number: {userData.phoneNumber}</Text>
+            <Text variant="titleMedium">Your phone number is Number: {userData?.user?.phoneNumber}</Text>
             <TextInput
               mode="outlined"
-              value={userData.password || ""}
+              value={password || ""}
               label="Password"
               onChangeText={(value) => {
-                setUserData({ ...userData, password: value });
+                setPassword(value);
               }}
               secureTextEntry={!isPasswordVisible}
               right={<TextInput.Icon icon={isPasswordVisible ? "eye-off" : "eye"} onPress={togglePassword} />}

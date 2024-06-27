@@ -1,13 +1,11 @@
 import { useFonts } from "expo-font";
-import { Slot, useRouter, useSegments } from "expo-router";
+import { Slot } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import "react-native-reanimated";
 
-import { config } from "@/config";
-import { UserData } from "@/context/types/IdentityType";
+import { GlobalContextProvider } from "@/context";
 import { useColorScheme } from "@/hooks/useColorScheme";
-import { getData } from "@/utils/storage";
 import { darkTheme, lightTheme } from "@/utils/theme/theme";
 import { StatusBar } from "expo-status-bar";
 import { PaperProvider, useTheme } from "react-native-paper";
@@ -35,10 +33,12 @@ export default function RootLayout() {
 
   return (
     <SafeAreaProvider style={{ backgroundColor: theme.colors.background }}>
-      <PaperProvider theme={colorScheme === "dark" ? darkTheme : lightTheme}>
-        <StatusBar style={colorScheme === "dark" ? "light" : "dark"} />
-        <Slot />
-      </PaperProvider>
+      <GlobalContextProvider>
+        <PaperProvider theme={colorScheme === "dark" ? darkTheme : lightTheme}>
+          <StatusBar style={colorScheme === "dark" ? "light" : "dark"} />
+          <Slot />
+        </PaperProvider>
+      </GlobalContextProvider>
     </SafeAreaProvider>
   );
 }

@@ -3,6 +3,8 @@ export type ContextType = {
   user: UserData | null;
   onThemeChange: () => void;
   logout: () => void;
+  loading: boolean;
+  tokenExpired: boolean;
 };
 
 type User = {
