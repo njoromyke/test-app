@@ -1,10 +1,8 @@
+import { config } from "@/config";
+import { getData } from "@/utils/storage";
+import { useRouter } from "expo-router";
 import { useEffect, useMemo, useState } from "react";
 import { GlobalContext } from "./global-context";
-import { postData } from "@/axios";
-import { getData } from "@/utils/storage";
-import { config } from "@/config";
-import { useRouter } from "expo-router";
-import Loader from "@/components/loader/loader";
 
 type Props = {
   children: React.ReactNode;
