@@ -52,7 +52,7 @@ const Login = () => {
       setMessage(error);
       toggleSnack();
     } else if (success) {
-      await storeData(config.SESSION_KEY, data?.data);
+      await storeData(config.SESSION_KEY, data);
       await storeData(config.START_TIME, new Date().getTime());
       setMessage("Login successful");
       router.push("(tabs)");
